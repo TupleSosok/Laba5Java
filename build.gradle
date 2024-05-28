@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+ext {
+    mapstructVersion = "1.6.0.Beta1"
+    lombokVersion = "1.18.30"
+    lombokMapstructBindingVersion = "0.2.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+        exceptionFormat "full"
+    }
+    useJUnitPlatform()
+}

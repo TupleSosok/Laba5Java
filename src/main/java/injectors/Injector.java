@@ -2,6 +2,7 @@ package injectors;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
@@ -19,7 +20,7 @@ public class Injector {
      * @param <T>    тип объекта
      * @return объект с внедренными зависимостями
      */
-    public <T> T inject(T object) throws IOException {
+    public <T> T inject(T object) throws IOException, ClassNotFoundException {
         Class<?> injectAble = object.getClass();
         Field[] fields = injectAble.getDeclaredFields();
 
@@ -41,22 +42,19 @@ public class Injector {
 
     /**
      * Создает экземпляр,используя имя класса из файла свойств
-     * @param clazz класс, для которого должен быть оздан экземпляр
+     * @param injectAble класс, для которого должен быть оздан экземпляр
      * @return экземпляр указанного класса
      * @throws IOException ошибка чтения файла свойств
      * @throws RuntimeException если экземпляр не может быть создан
      */
-    private Object createInstance(Class<?> clazz) throws IOException {
-        String className = getClassNameFromProperties(clazz.getName());
+    private Object createInstance(Class<?> injectAble) throws IOException, ClassNotFoundException {
+        String className = getClassNameFromProperties(injectAble.getName());
         try {
-            return Class.forName(className).getConstructor().newInstance();
-        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Не удалось создать : " + clazz.getName());
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            Class<?> instance = Class.forName(className);
+            Constructor<?> constructor = instance.getDeclaredConstructor();
+            return constructor.newInstance();
+        } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException("Невозможно создать объект класса : " + className);
         }
     }
 
